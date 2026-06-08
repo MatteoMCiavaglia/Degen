@@ -7,6 +7,8 @@ import { MessageList } from "@/components/chat/MessageList";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { ChatMessage } from "@/components/chat/types";
 
+const STREAMING_ID = "streaming-agent";
+
 const openingMessages: ChatMessage[] = [
   {
     id: "seed-1",
@@ -23,20 +25,13 @@ function formatTimeStamp() {
   });
 }
 
-function createMockReply(input: string) {
-  const stripped = input.trim();
-  if (!stripped) {
-    return "Tell me one more detail and I will tune the suggestion.";
-  }
-
-  return `Solid check-in. Based on "${stripped}", start with water, add protein and carbs, and keep tomorrow low pressure.`;
-}
-
 export function ChatShell() {
   const [messages, setMessages] = useState<ChatMessage[]>(openingMessages);
   const [draft, setDraft] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const streamBufferRef = useRef("");
+  const rafIdRef = useRef<number | null>(null);
 
   const subtitle = useMemo(
     () =>
@@ -45,10 +40,10 @@ export function ChatShell() {
   );
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    endRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
   }, [messages, isTyping]);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const trimmed = draft.trim();
     if (!trimmed || isTyping) {
       return;
@@ -65,17 +60,109 @@ export function ChatShell() {
     setDraft("");
     setIsTyping(true);
 
-    window.setTimeout(() => {
-      const agentMessage: ChatMessage = {
-        id: `agent-${Date.now()}`,
-        sender: "agent",
-        text: createMockReply(trimmed),
-        timestamp: formatTimeStamp(),
-      };
+    try {
+      const history = [...messages, userMessage];
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
 
-      setMessages((previous) => [...previous, agentMessage]);
+      if (!response.ok || !response.body) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let streamingStarted = false;
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let event: { type: string; text?: string; message?: string };
+          try {
+            event = JSON.parse(line);
+          } catch {
+            continue;
+          }
+
+          if (event.type === "delta" && event.text) {
+            if (!streamingStarted) {
+              streamingStarted = true;
+              setIsTyping(false);
+              setMessages((prev) => [
+                ...prev,
+                {
+                  id: STREAMING_ID,
+                  sender: "agent",
+                  text: event.text!,
+                  timestamp: formatTimeStamp(),
+                },
+              ]);
+            } else {
+              streamBufferRef.current += event.text;
+              if (rafIdRef.current === null) {
+                rafIdRef.current = requestAnimationFrame(() => {
+                  const buffered = streamBufferRef.current;
+                  streamBufferRef.current = "";
+                  rafIdRef.current = null;
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === STREAMING_ID
+                        ? { ...m, text: m.text + buffered }
+                        : m,
+                    ),
+                  );
+                });
+              }
+            }
+          } else if (event.type === "done") {
+            if (rafIdRef.current !== null) {
+              cancelAnimationFrame(rafIdRef.current);
+              rafIdRef.current = null;
+            }
+            const remaining = streamBufferRef.current;
+            streamBufferRef.current = "";
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === STREAMING_ID
+                  ? { ...m, id: `agent-${Date.now()}`, text: m.text + remaining }
+                  : m,
+              ),
+            );
+          } else if (event.type === "error") {
+            throw new Error(event.message ?? "Stream error");
+          }
+        }
+      }
+    } catch (err) {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      streamBufferRef.current = "";
+      const errorText =
+        err instanceof Error ? err.message : "Something went wrong.";
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== STREAMING_ID),
+        {
+          id: `error-${Date.now()}`,
+          sender: "agent",
+          text: `Error: ${errorText}`,
+          timestamp: formatTimeStamp(),
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 850);
+    }
   };
 
   return (
