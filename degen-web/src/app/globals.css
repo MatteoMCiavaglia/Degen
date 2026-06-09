@@ -1,29 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #08121f;
-  --surface: #0d1b2f;
-  --surface-muted: #0f2238;
-  --text-primary: #ecf6ff;
-  --text-secondary: #c5d8e9;
-  --text-muted: #8ea2ba;
+  --background: #140b08;
+  --surface: #1d100b;
+  --surface-muted: #241310;
+  --text-primary: #f6ecdf;
+  --text-secondary: #e2cbb0;
+  --text-muted: #b08f74;
 
-  --accent-primary: #ffbe5c;
-  --accent-secondary: #44e4b2;
+  --accent-primary: #e8a13a;
+  --accent-secondary: #e23b2e;
 
-  --bubble-user-bg: #ffbe5c;
-  --bubble-user-border: #ffd48e;
-  --bubble-user-text: #1d1a14;
+  --logo-red: #d22f24;
+  --logo-red-deep: #8f1c14;
 
-  --bubble-agent-bg: #10263f;
-  --bubble-agent-border: #294b70;
-  --bubble-agent-text: #d9edff;
+  --bubble-user-bg: #e8a13a;
+  --bubble-user-border: #f3c071;
+  --bubble-user-text: #1c1206;
+
+  --bubble-agent-bg: rgba(36, 19, 14, 0.92);
+  --bubble-agent-border: rgba(232, 161, 58, 0.28);
+  --bubble-agent-text: #f0ddc8;
+
+  /* Background image hook: drop your bar photo into public/ and set the name here */
+  --bar-image: url("/DegenHomePage.png");
 }
 
 @theme inline {
   --color-background: var(--background);
   --font-sans: var(--font-heading);
   --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
 }
 
 body {
@@ -32,15 +39,15 @@ body {
   font-family: var(--font-heading), "Trebuchet MS", sans-serif;
   min-height: 100vh;
   background-image:
-    radial-gradient(circle at 12% 12%, rgba(68, 228, 178, 0.22), transparent 33%),
-    radial-gradient(circle at 88% 14%, rgba(255, 190, 92, 0.2), transparent 30%),
-    radial-gradient(circle at 28% 82%, rgba(36, 92, 150, 0.28), transparent 38%),
-    linear-gradient(160deg, #06101d 0%, #08121f 44%, #0a1624 100%);
+    radial-gradient(circle at 18% 16%, rgba(232, 161, 58, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 22%, rgba(210, 47, 36, 0.18), transparent 32%),
+    radial-gradient(circle at 50% 90%, rgba(143, 28, 20, 0.22), transparent 42%),
+    linear-gradient(165deg, #1a0d08 0%, #140b08 46%, #0e0705 100%);
 }
 
 ::selection {
-  background: rgba(68, 228, 178, 0.34);
-  color: #ecf6ff;
+  background: rgba(232, 161, 58, 0.36);
+  color: #1c1206;
 }
 
 .message-pop {
@@ -51,9 +58,20 @@ body {
   height: 7px;
   width: 7px;
   border-radius: 999px;
-  background: var(--accent-secondary);
-  box-shadow: 12px 0 0 rgba(68, 228, 178, 0.8), 24px 0 0 rgba(68, 228, 178, 0.45);
+  background: var(--accent-primary);
+  box-shadow: 12px 0 0 rgba(232, 161, 58, 0.8), 24px 0 0 rgba(232, 161, 58, 0.45);
   animation: typing-pulse 1s ease-in-out infinite;
+}
+
+.saloon-bg {
+  position: relative;
+  background-color: #0e0705;
+  background-image:
+    linear-gradient(180deg, rgba(14, 7, 5, 0.28) 0%, rgba(14, 7, 5, 0.5) 100%),
+    var(--bar-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 @keyframes rise-in {
