@@ -39,7 +39,7 @@ export function ChatComposer({
 
   return (
     <form
-      className="rounded-3xl border border-white/20 bg-white/7 p-3 backdrop-blur-xl"
+      className="flex items-center gap-2"
       onSubmit={handleSubmit}
       aria-label="Message composer"
     >
@@ -48,25 +48,20 @@ export function ChatComposer({
       </label>
       <textarea
         id="chat-input"
-        rows={2}
+        rows={1}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="What did you drink, and how are you feeling?"
-        className="w-full resize-none rounded-2xl border border-white/12 bg-black/16 px-4 py-3 text-sm text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[color:var(--accent-primary)]/35"
+        placeholder="Ask Degen…"
+        className="max-h-24 w-full resize-none rounded-full border border-[var(--accent-primary)]/25 bg-black/40 px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[color:var(--accent-primary)]/35"
       />
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-[var(--text-muted)]">
-          Enter to send, Shift+Enter for newline.
-        </p>
-        <button
-          type="submit"
-          disabled={!trimmed || disabled}
-          className="rounded-full bg-[var(--accent-primary)] px-5 py-2.5 text-sm font-semibold text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          Send
-        </button>
-      </div>
+      <button
+        type="submit"
+        disabled={!trimmed || disabled}
+        className="shrink-0 rounded-full bg-[var(--accent-primary)] px-5 py-2.5 text-sm font-semibold text-[#1c1206] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-45"
+      >
+        Send
+      </button>
     </form>
   );
 }

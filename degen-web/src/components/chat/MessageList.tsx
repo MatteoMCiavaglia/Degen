@@ -8,7 +8,7 @@ type MessageListProps = {
 export function MessageList({ messages }: MessageListProps) {
   return (
     <section
-      className="flex-1 space-y-4 overflow-y-auto rounded-3xl border border-white/15 bg-black/18 p-4 backdrop-blur-xl md:p-5"
+      className="h-[280px] space-y-3 overflow-y-auto rounded-xl border border-[var(--accent-primary)]/15 bg-black/30 p-3"
       role="log"
       aria-live="polite"
       aria-label="Chat messages"

@@ -14,16 +14,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       }`}
     >
       <div
-        className={`max-w-[82%] rounded-3xl border px-4 py-3 shadow-[0_16px_40px_rgba(0,0,0,0.24)] md:max-w-[70%] ${
+        className={`max-w-[85%] rounded-2xl border px-3.5 py-2.5 shadow-[0_8px_22px_rgba(0,0,0,0.3)] ${
           isUser
             ? "border-[var(--bubble-user-border)] bg-[var(--bubble-user-bg)] text-[var(--bubble-user-text)]"
             : "border-[var(--bubble-agent-border)] bg-[var(--bubble-agent-bg)] text-[var(--bubble-agent-text)]"
         }`}
       >
-        <p className="whitespace-pre-wrap text-sm leading-relaxed md:text-[15px]">
+        <p className="whitespace-pre-wrap text-[13px] leading-relaxed">
           {message.text}
         </p>
-        <p className="mt-2 text-[11px] uppercase tracking-[0.16em] opacity-65">
+        <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] opacity-60">
           {message.timestamp}
         </p>
       </div>

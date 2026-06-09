@@ -13,7 +13,7 @@ const openingMessages: ChatMessage[] = [
   {
     id: "seed-1",
     sender: "agent",
-    text: "Welcome to DEGEN. Drop what you had tonight and how you feel, and I will help you bounce back smart.",
+    text: "Yo, how's the head feeling today? Hit me up with your recovery questions.",
     timestamp: "just now",
   },
 ];
@@ -29,13 +29,13 @@ export function ChatShell() {
   const [messages, setMessages] = useState<ChatMessage[]>(openingMessages);
   const [draft, setDraft] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const endRef = useRef<HTMLDivElement | null>(null);
   const streamBufferRef = useRef("");
   const rafIdRef = useRef<number | null>(null);
 
   const subtitle = useMemo(
-    () =>
-      "A modern UI-only chat surface for your future AI coach. This mock flow is frontend-only and ready for backend wiring later.",
+    () => "Drop what you had tonight and how you feel.",
     [],
   );
 
@@ -165,17 +165,34 @@ export function ChatShell() {
     }
   };
 
-  return (
-    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 md:py-8">
-      <ChatHeader title="Recovery Chat Booth" subtitle={subtitle} />
+  if (!isOpen) {
+    return (
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="Open Degen Chat"
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-primary)] text-2xl shadow-[0_12px_30px_rgba(0,0,0,0.5)] transition hover:brightness-110"
+      >
+        💬
+      </button>
+    );
+  }
 
-      <div className="grid flex-1 gap-4">
+  return (
+    <div className="fixed bottom-5 right-5 z-50 flex w-[calc(100vw-2.5rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-[var(--accent-primary)]/25 bg-[var(--surface)]/95 shadow-[0_24px_60px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <ChatHeader
+        title="Degen Chat"
+        subtitle={subtitle}
+        onClose={() => setIsOpen(false)}
+      />
+
+      <div className="flex flex-col gap-2 px-3 pb-2 pt-3">
         <MessageList messages={messages} />
         {isTyping ? <TypingIndicator /> : null}
         <div ref={endRef} aria-hidden="true" />
       </div>
 
-      <div className="sticky bottom-3">
+      <div className="px-3 pb-3">
         <ChatComposer
           value={draft}
           onChange={setDraft}
